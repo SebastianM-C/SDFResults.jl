@@ -4,6 +4,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://SebastianM-C.github.io/SDFResults.jl/dev)
 [![Build Status](https://github.com/SebastianM-C/SDFResults.jl/workflows/CI/badge.svg)](https://github.com/SebastianM-C/SDFResults.jl/actions)
 [![Coverage](https://codecov.io/gh/SebastianM-C/SDFResults.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/SebastianM-C/SDFResults.jl)
+![https://www.tidyverse.org/lifecycle/#experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)
 
 [EPOCH](https://cfsa-pmw.warwick.ac.uk/mediawiki/index.php/EPOCH:FAQ) is a code for plasma physics simulations using the Particle-in-Cell method. The simulation results are written is `.sdf` binary files. Several readers for this files are available at https://cfsa-pmw.warwick.ac.uk/SDF.
 This package intends to help users read and analyse EPOCH simulations.
