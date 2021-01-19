@@ -51,6 +51,8 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Pkg
+            Pkg.add(PackageSpec(url="https://github.com/SebastianM-C/PICDataStructures.jl"))
+            Pkg.add(PackageSpec(url="https://github.com/SebastianM-C/EPOCHInput.jl"))
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
       - run: |
