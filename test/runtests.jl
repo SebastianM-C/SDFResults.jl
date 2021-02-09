@@ -23,8 +23,12 @@ using PICDataStructures
     t = get_time(file)
     @test (t |> u"fs") ≈ 10u"fs" atol = 0.1u"fs"
 
-    nx = get_parameter(file, :nx)
-    @test nx == 10
+    nx, ny, nz = get_parameter.((file,), (:nx, :ny, :nz))
+    @test nx == ny == nz == 10
+
     λ = get_parameter(file, :laser, :lambda)
     @test (λ |> u"nm") ≈ 800u"nm"
+
+    @test ndims(file) == 3
+    @test cell_volume(file) ≠ 0
 end

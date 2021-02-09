@@ -1,10 +1,3 @@
-struct SDFFile{P,B}
-    name::String
-    header::Header
-    blocks::B
-    param::Ref{P}
-end
-
 function read_file(file, p)
     h, blocks = open(file_summary, file)
     SDFFile(file, h, blocks, p)
@@ -21,8 +14,6 @@ function Base.read(sdf::SDFFile, entries...)
         asyncmap(i->read(f, getindex(sdf.blocks,i)), entries)
     end
 end
-
-Base.keys(sdf::SDFFile) = keys(sdf.blocks)
 
 function Base.getindex(sdf::SDFFile, idx::Symbol)
     open(sdf.name) do f
@@ -47,8 +38,7 @@ end
 
 # The data for the particles is the most expensive to read since there are
 # a lot of particles. Since the ScalarVariables have a grid, that grid
-# might be the same for more variables and thus could be read only once and
-# stored as a Ref.
+# might be the same for more variables and should only be read once
 function Base.getindex(sdf::SDFFile, idx::Vararg{Symbol, N}) where N
     mesh_ids = get_mesh_id.((sdf,), idx)
     @debug "Reading entries for $idx with mesh ids $mesh_ids"
@@ -104,11 +94,3 @@ function simple_read(sdf, idx)
         asyncmap(i->read_entry(f, sdf.blocks, i), idx)
     end
 end
-
-Base.getindex(sdf::SDFFile, idx::Vararg{AbstractString, N}) where N = sdf[Symbol.(idx)...]
-
-get_parameter(sdf::SDFFile, p::Symbol) = getindex(sdf.param[], p)
-get_parameter(sdf::SDFFile, p::Symbol, c::Symbol) = getindex(get_parameter(sdf, p), c)
-
-get_time(sdf::SDFFile) = sdf.header.time * u"s"
-get_npart(sdf::SDFFile, species) = sdf.blocks["px/"*species].np
