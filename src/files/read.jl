@@ -31,7 +31,7 @@ function expensive_grids(ids, idx)
     end
     s_id = string.(cid)
     expensive = map(i->occursin("grid/", i), s_id)
-    !reduce(|, expensive) && return nothing
+    !reduce(|, expensive) && return nothing, expensive
     @debug "Found expensive to read mesh entries"
     map(Symbol, unique(s_id[expensive])), expensive
 end
