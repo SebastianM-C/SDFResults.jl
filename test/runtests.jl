@@ -9,8 +9,13 @@ using PICDataStructures
     @test sim isa EPOCHSimulation
     file = sim[1]
     @test file isa SDFFile
-    Ex = sim[1][:ex]
+
+    # test for different code paths in expensive grid detection
+    Ex, Ey = sim[1][:ex, :ey]
+    Ez = sim[1][:ez]
     @test Ex isa ScalarField{3}
+    @test Ey isa ScalarField{3}
+    @test Ez isa ScalarField{3}
     @test all(unit.(Ex.data) .== u"V/m")
     @test all(unit.(Ex.grid[1]) .== u"m")
 
