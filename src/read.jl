@@ -1,6 +1,7 @@
 function read_entry(file, blocks, name)
     data_block = getindex(blocks, name)
     data = read(file, data_block)
+    @debug "Reading $name"
     store_entry(data_block, data, file, blocks)
 end
 
@@ -32,6 +33,7 @@ function store_entry(::Data, data_block, data, file, blocks)
     mesh_block = getindex(blocks, get_mesh_id(data_block))
     grid = make_grid(mesh_block, data_block, file)
 
+    @debug "Grid for data: $grid"
     store_entry(data_block, data, grid)
 end
 
@@ -52,8 +54,10 @@ function make_grid(::StaggeredField, mesh_block, data_block, file)
     original_grid = map(eachindex(dims)) do i
         range(minval[i], maxval[i], length=dims[i])
     end
+    @debug "Creating grid from $original_grid"
 
     stagger = data_block.stagger
+    @debug "Staggering: $stagger"
     grid = apply_stagger(original_grid, Val(stagger))
 
     # Fix grid in the cases where it doesn't match the data. See
@@ -71,7 +75,7 @@ function make_grid(::Variable, mesh_block, data_block, file)
     read(file, mesh_block)
 end
 
-apply_stagger(grid, ::Val{CellCentre}) = midpoints.(grid)
+apply_stagger(grid, ::Val{CellCentre}) = (midpoints.(grid)...,)
 
 function apply_stagger(grid, ::Val{FaceX})
     n = length(grid)
@@ -128,4 +132,4 @@ function apply_stagger(grid, ::Val{EdgeZ})
     end
 end
 
-apply_stagger(grid, ::Val{Vertex}) = grid
+apply_stagger(grid, ::Val{Vertex}) = (grid...,)
