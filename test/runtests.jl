@@ -2,6 +2,7 @@ using SDFResults
 using Test
 using Unitful
 using PICDataStructures
+using RecursiveArrayTools: recursive_bottom_eltype
 
 @testset "SDFResults.jl" begin
     dir = "gauss"
@@ -16,8 +17,8 @@ using PICDataStructures
     @test Ex isa ScalarField{3}
     @test Ey isa ScalarField{3}
     @test Ez isa ScalarField{3}
-    @test all(unit.(Ex.data) .== u"V/m")
-    @test all(unit.(Ex.grid[1]) .== u"m")
+    @test unit(eltype(Ex)) == u"V/m"
+    @test unit(recursive_bottom_eltype(getdomain(Ex))) == u"m"
 
     vars = (:grid, Symbol("py/electron"), Symbol("pz/electron"))
     @task all(vars .∈ keys(file))

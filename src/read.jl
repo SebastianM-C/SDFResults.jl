@@ -37,10 +37,16 @@ function store_entry(::Data, data_block, data, file, blocks)
     store_entry(data_block, data, grid)
 end
 
-store_entry(::T, data, grid) where T = store_entry(discretization_type(T), data, grid)
+store_entry(data_block::T, data, grid) where T = store_entry(discretization_type(T), data_block, data, grid)
 store_entry(::Variable, data::NTuple) = VectorVariable(data)
-store_entry(::StaggeredField, data, grid) = ScalarField(data, grid)
-store_entry(::Variable, data, grid) = ScalarVariable(data, grid)
+
+function store_entry(::StaggeredField, data_block, data, grid)
+    ScalarField(data, grid)
+end
+
+function store_entry(::Variable, data_block, data, grid)
+    ScalarVariable(data, grid)
+end
 
 make_grid(mesh_block::T, data_block, file) where T =
     make_grid(discretization_type(T), mesh_block, data_block, file)
@@ -68,11 +74,17 @@ function make_grid(::StaggeredField, mesh_block, data_block, file)
         end
     end
 
-    return grid
+    return SparseAxisGrid(grid)
 end
 
 function make_grid(::Variable, mesh_block, data_block, file)
-    read(file, mesh_block)
+    grid = read(file, mesh_block)
+    units = get_units(mesh_block.units)
+
+    minvals = (mesh_block.minval...,) .* units
+    maxvals = (mesh_block.maxval...,) .* units
+
+    ParticlePositions(grid, minvals, maxvals)
 end
 
 apply_stagger(grid, ::Val{CellCentre}) = (midpoints.(grid)...,)
