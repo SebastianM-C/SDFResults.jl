@@ -15,6 +15,12 @@ function Base.read(sdf::SDFFile, entries...)
     end
 end
 
+function read_expensive(sdf, ids)
+    open(sdf.name) do f
+        asyncmap(i->make_grid(Variable(), sdf.blocks[i], nothing, f), ids)
+    end
+end
+
 function Base.getindex(sdf::SDFFile, idx::Symbol)
     open(sdf.name) do f
         read_entry(f, sdf.blocks, idx)
@@ -50,9 +56,7 @@ function Base.getindex(sdf::SDFFile, idx::Vararg{Symbol, N}) where N
         @debug "Reading data without expensive grids"
         partial_data = selective_read(sdf, idx, expensive_ids)
         @debug "Reading expensive grids: $expensive_ids"
-        grids = open(sdf.name) do f
-            asyncmap(i->read(f, sdf.blocks[i]), expensive_ids)
-        end
+        grids = read_expensive(sdf, expensive_ids)
         grid_map = (; zip(expensive_ids, grids)...)
         complete_data = ()
         for (i, d) in enumerate(partial_data)
@@ -63,7 +67,6 @@ function Base.getindex(sdf::SDFFile, idx::Vararg{Symbol, N}) where N
                 if isnothing(id)
                     grid_id = idx[i]
                     @debug "Storing grid entry $grid_id"
-                    # grid = Ref(getproperty(grid_map, grid_id))
                     grid = getproperty(grid_map, grid_id)
                     complete_data = push!!(complete_data, grid)
                 else
