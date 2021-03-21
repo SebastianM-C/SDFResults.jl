@@ -84,7 +84,7 @@ function make_grid(::Variable, mesh_block, data_block, file)
     minvals = (mesh_block.minval...,) .* units
     maxvals = (mesh_block.maxval...,) .* units
 
-    ParticlePositions(grid, minvals, maxvals)
+    ParticlePositions(grid, MVector(minvals), MVector(maxvals))
 end
 
 apply_stagger(grid, ::Val{CellCentre}) = (midpoints.(grid)...,)
