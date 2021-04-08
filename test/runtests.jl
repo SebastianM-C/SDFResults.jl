@@ -10,6 +10,8 @@ using RecursiveArrayTools: recursive_bottom_eltype
     @test sim isa EPOCHSimulation
     file = sim[1]
     @test file isa SDFFile
+    @test size(sim) == (1,)
+    @test length(sim) == 1
 
     # test for different code paths in expensive grid detection
     Ex, Ey = sim[1][:ex, :ey]
