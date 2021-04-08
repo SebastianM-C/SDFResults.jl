@@ -39,6 +39,8 @@ Base.iterate(sim::EPOCHSimulation, state...) = iterate(sim.files, state...)
 Base.eltype(::Type{EPOCHSimulation}) = SDFFile
 Base.length(sim::EPOCHSimulation) = length(sim.files)
 
+Base.size(sim::EPOCHSimulation, args...) = size(sim.files, args...)
+
 # Statistics
 function Statistics.mean(f::Function, sim::EPOCHSimulation; cond=x->true)
     ThreadsX.map(sim.files) do file
