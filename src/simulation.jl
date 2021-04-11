@@ -26,9 +26,6 @@ function read_simulation(dir)
     EPOCHSimulation(dir, files, p)
 end
 
-get_parameter(sim::EPOCHSimulation, p::Symbol) = getindex(sim.param, p)
-get_parameter(sim::EPOCHSimulation, p::Symbol, c::Symbol) = getindex(get_parameter(sim, p), c)
-
 # Indexing
 Base.getindex(sim::EPOCHSimulation, i::Int) = sim.files[i]
 Base.firstindex(sim::EPOCHSimulation) = firstindex(sim.files)
@@ -38,20 +35,4 @@ Base.lastindex(sim::EPOCHSimulation) = lastindex(sim.files)
 Base.iterate(sim::EPOCHSimulation, state...) = iterate(sim.files, state...)
 Base.eltype(::Type{EPOCHSimulation}) = SDFFile
 Base.length(sim::EPOCHSimulation) = length(sim.files)
-
 Base.size(sim::EPOCHSimulation, args...) = size(sim.files, args...)
-
-# Statistics
-function Statistics.mean(f::Function, sim::EPOCHSimulation; cond=x->true)
-    ThreadsX.map(sim.files) do file
-        println("Loading $(file.name)")
-        qunatity = f(file)
-        z = zero(eltype(qunatity))
-        (qunatity ./ length(qunatity)) |>
-            Filter(cond) |>
-            foldxt(+, simd=true, init=z)
-    end
-end
-
-# FileTrees
-# FileTrees._maketree(node::SDFFile) = File(nothing, basename(node.name), node)

@@ -27,7 +27,7 @@ StaticArrays = "1.0"
 ThreadsX = "0.1"
 Transducers = "0.4"
 Unitful = "1.0"
-julia = "1.5, 1.6"
+julia = "1.6"
 
 [extras]
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
