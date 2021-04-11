@@ -39,4 +39,6 @@ using RecursiveArrayTools: recursive_bottom_eltype
 
     @test ndims(file) == 3
     @test cell_volume(file) ≠ 0
+    @test cell_length(file, :x) != 0
+    @test cell_length(file, :y) == cell_length(file, :z)
 end

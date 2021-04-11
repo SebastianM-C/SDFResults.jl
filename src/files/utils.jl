@@ -50,3 +50,7 @@ function cell_volume(sdf::SDFFile)
         vol / (nx * ny * nz)
     end
 end
+
+function cell_length(sdf::SDFFile, direction::Symbol)
+    domain_length(sdf, direction)/get_parameter(sdf, Symbol("n"*"$direction"))
+end
