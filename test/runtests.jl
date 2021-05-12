@@ -14,13 +14,17 @@ using RecursiveArrayTools: recursive_bottom_eltype
     @test length(sim) == 1
 
     # test for different code paths in expensive grid detection
-    Ex, Ey = sim[1][:ex, :ey]
-    Ez = sim[1][:ez]
+    Ex, Ey = file[:ex, :ey]
+    Ez = file[:ez]
     @test Ex isa ScalarField{3}
     @test Ey isa ScalarField{3}
     @test Ez isa ScalarField{3}
     @test unit(eltype(Ex)) == u"V/m"
     @test unit(recursive_bottom_eltype(getdomain(Ex))) == u"m"
+    @test nameof(Ex) == "Electric Field/Ex"
+    @test nameof(Ey) == "Electric Field/Ey"
+    @test nameof(Ez) == "Electric Field/Ez"
+    @test axisnames(getdomain(Ex)) == ["x (m)", "y (m)", "z (m)"]
 
     vars = (:grid, Symbol("py/electron"), Symbol("pz/electron"))
     @task all(vars .∈ keys(file))
