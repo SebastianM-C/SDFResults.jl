@@ -41,11 +41,13 @@ store_entry(data_block::T, data, grid) where T = store_entry(discretization_type
 store_entry(::Variable, data::NTuple) = VectorVariable(data)
 
 function store_entry(::StaggeredField, data_block, data, grid)
-    ScalarField(data, grid)
+    name = nameof(data_block)
+    ScalarField(data, grid, name)
 end
 
 function store_entry(::Variable, data_block, data, grid)
-    ScalarVariable(data, grid)
+    name = nameof(data_block)
+    ScalarVariable(data, grid, name)
 end
 
 make_grid(mesh_block::T, data_block, file) where T =
@@ -74,7 +76,10 @@ function make_grid(::StaggeredField, mesh_block, data_block, file)
         end
     end
 
-    return SparseAxisGrid(grid)
+    names = Symbol.(lowercase.(labels(mesh_block)))
+    @debug "Axis label names: $names"
+
+    return SparseAxisGrid(grid; names)
 end
 
 function make_grid(::Variable, mesh_block, data_block, file)
@@ -84,7 +89,10 @@ function make_grid(::Variable, mesh_block, data_block, file)
     minvals = (mesh_block.minval...,) .* units
     maxvals = (mesh_block.maxval...,) .* units
 
-    ParticlePositions(grid, MVector(minvals), MVector(maxvals))
+    names = Symbol.(lowercase.(labels(mesh_block)))
+    @debug "Axis label names: $names"
+
+    ParticlePositions(grid; names, mins=MVector(minvals), maxs=MVector(maxvals))
 end
 
 apply_stagger(grid, ::Val{CellCentre}) = (midpoints.(grid)...,)
