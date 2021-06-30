@@ -111,6 +111,8 @@ function apply_stagger(grid, ::Val{FaceY})
     n = length(grid)
     if n == 1
         grid
+    elseif n == 2
+        (midpoints(grid[1]), grid[2])
     else
         (midpoints(grid[1]), grid[2], midpoints(grid[3]))
     end
