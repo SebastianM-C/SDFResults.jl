@@ -60,3 +60,30 @@ end
 function cell_length(sdf, direction::Symbol)
     domain_length(sdf, direction)/get_parameter(sdf, Symbol("n"*"$direction"))
 end
+
+function timestep(sim)
+    if haskey(sim, :dt_multiplier)
+        C = get_parameter(sim, :dt_multiplier)
+    else
+        C = 0.95
+    end
+
+    n = ndims(sim)
+    c = 2.99792458e8u"m/s" # https://github.com/Warwick-Plasma/epoch/blob/066d3dafd5582360c2e9136d2020cef404bb84f5/epoch1d/src/constants.F90#L147
+
+    Δx = domain_length(sim, :x)
+
+    if n == 1
+        ratio = Δx / c
+    elseif n == 2
+        Δy = domain_length(sim, :y)
+        ratio = inv(c * √(1/Δx^2 + 1/Δy^2))
+    else
+        Δy = domain_length(sim, :y)
+        Δz = domain_length(sim, :z)
+
+        ratio = inv(c * √(1/Δx^2 + 1/Δy^2 + 1/Δz^2))
+    end
+
+    return ratio / C
+end
