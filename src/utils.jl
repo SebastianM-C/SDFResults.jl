@@ -45,9 +45,9 @@ function cell_volume(sdf)
     vol = domain_volume(sdf)
     nx = get_parameter(sdf, :nx)
 
-    if ndims == 1
+    if nd == 1
         vol / nx
-    elseif ndims == 2
+    elseif nd == 2
         ny = get_parameter(sdf, :ny)
         vol / (nx * ny)
     else
