@@ -1,9 +1,10 @@
 module SDFResults
 
 export read_simulation, EPOCHSimulation, SDFFile,
-    get_time, get_parameter, get_npart,
-    domain_length, domain_volume, cell_volume,
-    compute_L, cell_length
+    get_time, get_parameter, get_npart, timestep,
+    domain_length, domain_volume,
+    cell_length, cell_volume,
+    compute_L
 
 using Unitful
 using PhysicalConstants.CODATA2018: c_0, ε_0, μ_0, m_e, e

@@ -36,3 +36,8 @@ Base.iterate(sim::EPOCHSimulation, state...) = iterate(sim.files, state...)
 Base.eltype(::Type{EPOCHSimulation}) = SDFFile
 Base.length(sim::EPOCHSimulation) = length(sim.files)
 Base.size(sim::EPOCHSimulation, args...) = size(sim.files, args...)
+
+# Utils
+
+Base.ndims(sim::EPOCHSimulation) = ndims(first(sim))
+Base.haskey(sim::EPOCHSimulation, key) = haskey(sim.param, key)

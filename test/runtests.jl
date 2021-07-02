@@ -45,4 +45,6 @@ using RecursiveArrayTools: recursive_bottom_eltype
     @test cell_volume(file) ≠ 0
     @test cell_length(file, :x) != 0
     @test cell_length(file, :y) == cell_length(file, :z)
+
+    @test timestep(sim) ≠ 0
 end
