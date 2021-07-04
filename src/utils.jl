@@ -71,19 +71,19 @@ function timestep(sim)
     n = ndims(sim)
     c = 2.99792458e8u"m/s" # https://github.com/Warwick-Plasma/epoch/blob/066d3dafd5582360c2e9136d2020cef404bb84f5/epoch1d/src/constants.F90#L147
 
-    Δx = domain_length(sim, :x)
+    Δx = cell_length(sim, :x)
 
     if n == 1
-        ratio = Δx / c
+        Δt = Δx / c
     elseif n == 2
-        Δy = domain_length(sim, :y)
-        ratio = inv(c * √(1/Δx^2 + 1/Δy^2))
+        Δy = cell_length(sim, :y)
+        Δt = inv(c * √(1/Δx^2 + 1/Δy^2))
     else
-        Δy = domain_length(sim, :y)
-        Δz = domain_length(sim, :z)
+        Δy = cell_length(sim, :y)
+        Δz = cell_length(sim, :z)
 
-        ratio = inv(c * √(1/Δx^2 + 1/Δy^2 + 1/Δz^2))
+        Δt = inv(c * √(1/Δx^2 + 1/Δy^2 + 1/Δz^2))
     end
 
-    return ratio / C
+    return C * Δt
 end
