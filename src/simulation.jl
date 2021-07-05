@@ -41,3 +41,4 @@ Base.size(sim::EPOCHSimulation, args...) = size(sim.files, args...)
 
 Base.ndims(sim::EPOCHSimulation) = ndims(first(sim))
 Base.haskey(sim::EPOCHSimulation, key) = haskey(sim.param, key)
+Base.haskey(sim::EPOCHSimulation, block, key) = haskey(sim.param[block], key)
