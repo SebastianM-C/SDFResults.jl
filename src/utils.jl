@@ -13,6 +13,8 @@ end
 # FileTrees
 # FileTrees._maketree(node::SDFFile) = File(nothing, basename(node.name), node)
 
+pretty_summarysize(x) = Base.format_bytes(Base.summarysize(x))
+
 get_parameter(sim::EPOCHSimulation, p::Symbol) = getindex(sim.param, p)
 get_parameter(sim::EPOCHSimulation, p::Symbol, c::Symbol) = getindex(get_parameter(sim, p), c)
 

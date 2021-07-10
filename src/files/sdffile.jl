@@ -15,3 +15,10 @@ Base.keys(sdf::SDFFile) = keys(sdf.blocks)
 Base.getindex(sdf::SDFFile, idx::Vararg{AbstractString, N}) where N = sdf[Symbol.(idx)...]
 Base.haskey(sim::SDFFile, key) = haskey(sim.param[], key)
 Base.haskey(sim::SDFFile, block, key) = haskey(sim.param[][block], key)
+
+# show
+function Base.show(io::IO, m::MIME"text/plain", sdf::SDFFile)
+    t = si_round(get_time(sdf))
+    n = length(keys(sdf))
+    print(io, "SDFFile with $n entries at t = " * t)
+end

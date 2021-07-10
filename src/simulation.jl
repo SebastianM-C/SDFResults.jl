@@ -54,3 +54,18 @@ Base.size(sim::EPOCHSimulation, args...) = size(sim.files, args...)
 Base.ndims(sim::EPOCHSimulation) = ndims(first(sim))
 Base.haskey(sim::EPOCHSimulation, key) = haskey(sim.param, key)
 Base.haskey(sim::EPOCHSimulation, block, key) = haskey(sim.param[block], key)
+
+# show
+function Base.show(io::IO, m::MIME"text/plain", sim::EPOCHSimulation)
+    first_file = first(sim)
+    code_name = first_file.header.code_name
+    n = length(sim)
+    t₀ = si_round(get_time(first_file))
+    t = si_round(get_time(last(sim)))
+    fc = pretty_summarysize(sim.field_cache)
+    pc = pretty_summarysize(sim.particle_cache)
+    description = "$code_name simulation with $n files from " * t₀ * " to " * t * ".\n" *
+    "Field cache: " * fc * '\n'  *
+    "Particle cache: " * pc
+    print(io, description)
+end
