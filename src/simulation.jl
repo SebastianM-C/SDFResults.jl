@@ -1,10 +1,12 @@
-struct EPOCHSimulation{P,B}
+struct EPOCHSimulation{P,B,C,PC}
     dir::String
-    files::Vector{SDFFile{P,B}}
+    files::Vector{SDFFile{P,B,C,PC}}
     param::P
+    cache::C
+    particle_cache::PC
 end
 
-function read_simulation(dir)
+function read_simulation(dir; field_cache_size=6, particle_cache_size=2, kwargs...)
     file_list = joinpath(dir, "normal.visit")
     if isfile(file_list)
         paths = readlines(file_list)
@@ -21,9 +23,19 @@ function read_simulation(dir)
         p = missing
     end
 
-    files = read_file.(joinpath.((dir,), paths), (Ref(p),))
+    # We assume that the particle_cache has the same dimensionality throughout
+    # all the simulation, so we ca use the first file to get the dimensionality
+    # and element type
 
-    EPOCHSimulation(dir, files, p)
+    N, T = get_data_description(joinpath(dir, first(paths)))
+    @debug "First file gave N = $N and T = $T"
+
+    field_cache = LRU{Tuple{String,AbstractBlockHeader},AbstractArray}(maxsize=field_cache_size, kwargs...)
+    particle_cache =  LRU{Tuple{String,AbstractBlockHeader},NTuple{N,Vector{T}}}(maxsize=particle_cache_size)
+
+    files = read_file.(joinpath.((dir,), paths), (Ref(p),), (Ref(field_cache),), (Ref(particle_cache),))
+
+    EPOCHSimulation(dir, files, p, field_cache, particle_cache)
 end
 
 # Indexing
@@ -42,3 +54,18 @@ Base.size(sim::EPOCHSimulation, args...) = size(sim.files, args...)
 Base.ndims(sim::EPOCHSimulation) = ndims(first(sim))
 Base.haskey(sim::EPOCHSimulation, key) = haskey(sim.param, key)
 Base.haskey(sim::EPOCHSimulation, block, key) = haskey(sim.param[block], key)
+
+# show
+function Base.show(io::IO, ::MIME"text/plain", sim::EPOCHSimulation)
+    first_file = first(sim)
+    code_name = first_file.header.code_name
+    n = length(sim)
+    t₀ = si_round(get_time(first_file))
+    t = si_round(get_time(last(sim)))
+    fc = Base.summarysize(sim.cache)
+    pc = Base.summarysize(sim.particle_cache)
+    c = Base.format_bytes(fc + pc)
+    description = "$code_name simulation with $n files from " * t₀ * " to " * t * ".\n" *
+    "Cache size: " * c
+    print(io, description)
+end

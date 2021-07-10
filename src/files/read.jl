@@ -1,6 +1,6 @@
-function read_file(file, p)
+function read_file(file, p, cache, particle_cache)
     h, blocks = open(file_summary, file)
-    SDFFile(file, h, blocks, p)
+    SDFFile(file, h, blocks, p, cache, particle_cache)
 end
 
 function Base.read(sdf::SDFFile, entry::Symbol)
@@ -17,13 +17,19 @@ end
 
 function read_expensive(sdf, ids)
     open(sdf.name) do f
-        asyncmap(i->make_grid(Variable(), sdf.blocks[i], nothing, f), ids)
+        asyncmap(i->make_grid(
+            Variable(),
+            sdf.blocks[i],
+            nothing,
+            f;
+            cache=sdf.particle_cache[]
+        ), ids)
     end
 end
 
 function Base.getindex(sdf::SDFFile, idx::Symbol)
     open(sdf.name) do f
-        read_entry(f, sdf.blocks, idx)
+        read_entry(f, sdf, idx)
     end
 end
 
@@ -94,6 +100,6 @@ end
 
 function simple_read(sdf, idx)
     open(sdf.name) do f
-        asyncmap(i->read_entry(f, sdf.blocks, i), idx)
+        asyncmap(i->read_entry(f, sdf, i), idx)
     end
 end
