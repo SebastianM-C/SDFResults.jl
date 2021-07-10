@@ -1,8 +1,10 @@
-struct SDFFile{P,B}
+struct SDFFile{P,B,FC,PC}
     name::String
     header::Header
     blocks::B
     param::Ref{P}
+    field_cache::Ref{FC}
+    particle_cache::Ref{PC}
 end
 
 include("read.jl")

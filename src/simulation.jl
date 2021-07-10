@@ -1,10 +1,12 @@
-struct EPOCHSimulation{P,B}
+struct EPOCHSimulation{P,B,FC,PC}
     dir::String
-    files::Vector{SDFFile{P,B}}
+    files::Vector{SDFFile{P,B,FC,PC}}
     param::P
+    field_cache::FC
+    particle_cache::PC
 end
 
-function read_simulation(dir)
+function read_simulation(dir; field_cache_size=6, particle_cache_size=2, kwargs...)
     file_list = joinpath(dir, "normal.visit")
     if isfile(file_list)
         paths = readlines(file_list)
@@ -21,9 +23,19 @@ function read_simulation(dir)
         p = missing
     end
 
-    files = read_file.(joinpath.((dir,), paths), (Ref(p),))
+    # We assume that the particle_cache has the same dimensionality throughout
+    # all the simulation, so we ca use the first file to get the dimensionality
+    # and element type
 
-    EPOCHSimulation(dir, files, p)
+    N, T = get_data_description(joinpath(dir, first(paths)))
+    @debug "First file gave N = $N and T = $T"
+
+    field_cache = LRU{Tuple{String,AbstractBlockHeader},AbstractArray}(maxsize=field_cache_size, kwargs...)
+    particle_cache =  LRU{Tuple{String,AbstractBlockHeader},NTuple{N,Vector{T}}}(maxsize=particle_cache_size)
+
+    files = read_file.(joinpath.((dir,), paths), (Ref(p),), (Ref(field_cache),), (Ref(particle_cache),))
+
+    EPOCHSimulation(dir, files, p, field_cache, particle_cache)
 end
 
 # Indexing

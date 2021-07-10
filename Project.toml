@@ -6,6 +6,7 @@ version = "0.1.7"
 [deps]
 BangBang = "198e06fe-97b7-11e9-32a5-e1d131e6ad66"
 EPOCHInput = "691e61f8-6502-44a1-a143-5276a0aa0dc4"
+LRUCache = "8ac3fa9e-de4c-5943-b1dc-09c6b5f20637"
 PICDataStructures = "cb18667b-f199-4b8b-b886-9916fef47a26"
 PhysicalConstants = "5ad8b20f-a522-5ce9-bfc9-ddf1d5bda6ab"
 SDFReader = "bd0b56a1-724b-4db5-9cfb-6781c02e0e49"

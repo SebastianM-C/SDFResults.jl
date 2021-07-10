@@ -16,6 +16,7 @@ using SDFReader: get_units
 using PICDataStructures
 using EPOCHInput
 using StaticArrays: MVector
+using LRUCache
 
 include("files/sdffile.jl")
 include("simulation.jl")

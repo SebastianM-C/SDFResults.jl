@@ -9,3 +9,19 @@ function Base.ndims(sdf::SDFFile)
     i = findfirst(k->startswith(k, "grid"), ks)
     ndims(sdf.blocks[Symbol(ks[i])])
 end
+
+function get_data_description(file)
+    h, blocks = open(file_summary, file)
+    names = string.(keys(blocks))
+    idx = findfirst(b->occursin("grid/", b), names)
+    if isnothing(idx)
+        @debug "No particle data found"
+        N = 1
+        T = Float64
+    else
+        N = ndims(blocks[Symbol(names[idx])])
+        T = eltype(blocks[Symbol(names[idx])])
+    end
+
+    return N, T
+end

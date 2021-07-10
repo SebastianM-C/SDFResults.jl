@@ -1,8 +1,10 @@
-function read_entry(file, blocks, name)
+function read_entry(io, sdf, name)
+    blocks = sdf.blocks
     data_block = getindex(blocks, name)
-    data = read(file, data_block)
+    cache = get_cache(discretization_type(typeof(data_block)), sdf)
+    data = cached_read(io, data_block, cache)
     @debug "Reading $name"
-    store_entry(data_block, data, file, blocks)
+    store_entry(data_block, data, io, blocks)
 end
 
 function read_selected(file, blocks, name, skip_grid)
@@ -22,6 +24,9 @@ function get_mesh_id(file, idx)
     block = getindex(file.blocks, idx)
     get_mesh_id(block)
 end
+
+get_cache(::StaggeredField, sdf) = sdf.field_cache[]
+get_cache(::Variable, sdf) = sdf.particle_cache[]
 
 get_mesh_id(block::AbstractBlockHeader) = hasproperty(block, :mesh_id) ? Symbol(block.mesh_id) : nothing
 
@@ -82,8 +87,12 @@ function make_grid(::StaggeredField, mesh_block, data_block, file)
     return SparseAxisGrid(grid; names)
 end
 
-function make_grid(::Variable, mesh_block, data_block, file)
-    grid = read(file, mesh_block)
+function make_grid(::Variable, mesh_block, data_block, file; cache=nothing)
+    if isnothing(cache)
+        grid = cached_read(file, mesh_block, cache)
+    else
+        grid = read(file, mesh_block)
+    end
     units = get_units(mesh_block.units)
 
     minvals = (mesh_block.minval...,) .* units
