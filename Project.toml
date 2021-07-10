@@ -21,6 +21,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [compat]
 BangBang = "0.3"
 EPOCHInput = "0.1"
+LRUCache = "1"
 PICDataStructures = "0.5"
 PhysicalConstants = "0.2"
 SDFReader = "0.3"
