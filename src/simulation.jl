@@ -1,8 +1,8 @@
-struct EPOCHSimulation{P,B,FC,PC}
+struct EPOCHSimulation{P,B,C,PC}
     dir::String
-    files::Vector{SDFFile{P,B,FC,PC}}
+    files::Vector{SDFFile{P,B,C,PC}}
     param::P
-    field_cache::FC
+    cache::C
     particle_cache::PC
 end
 
@@ -56,16 +56,16 @@ Base.haskey(sim::EPOCHSimulation, key) = haskey(sim.param, key)
 Base.haskey(sim::EPOCHSimulation, block, key) = haskey(sim.param[block], key)
 
 # show
-function Base.show(io::IO, m::MIME"text/plain", sim::EPOCHSimulation)
+function Base.show(io::IO, ::MIME"text/plain", sim::EPOCHSimulation)
     first_file = first(sim)
     code_name = first_file.header.code_name
     n = length(sim)
     t₀ = si_round(get_time(first_file))
     t = si_round(get_time(last(sim)))
-    fc = pretty_summarysize(sim.field_cache)
-    pc = pretty_summarysize(sim.particle_cache)
+    fc = Base.summarysize(sim.cache)
+    pc = Base.summarysize(sim.particle_cache)
+    c = Base.format_bytes(fc + pc)
     description = "$code_name simulation with $n files from " * t₀ * " to " * t * ".\n" *
-    "Field cache: " * fc * '\n'  *
-    "Particle cache: " * pc
+    "Cache size: " * c
     print(io, description)
 end

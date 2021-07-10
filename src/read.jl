@@ -1,7 +1,7 @@
 function read_entry(io, sdf, name)
     blocks = sdf.blocks
     data_block = getindex(blocks, name)
-    cache = get_cache(discretization_type(typeof(data_block)), sdf)
+    cache = get_cache(data_kind(typeof(data_block)), sdf)
     data = cached_read(io, data_block, cache)
     @debug "Reading $name"
     store_entry(data_block, data, io, blocks)
@@ -25,8 +25,8 @@ function get_mesh_id(file, idx)
     get_mesh_id(block)
 end
 
-get_cache(::StaggeredField, sdf) = sdf.field_cache[]
-get_cache(::Variable, sdf) = sdf.particle_cache[]
+get_cache(::Data, sdf) = sdf.cache[]
+get_cache(::Grid, sdf) = sdf.particle_cache[]
 
 get_mesh_id(block::AbstractBlockHeader) = hasproperty(block, :mesh_id) ? Symbol(block.mesh_id) : nothing
 
@@ -89,9 +89,11 @@ end
 
 function make_grid(::Variable, mesh_block, data_block, file; cache=nothing)
     if isnothing(cache)
-        grid = cached_read(file, mesh_block, cache)
-    else
+        @debug "No cache"
         grid = read(file, mesh_block)
+    else
+        @debug "Got cache"
+        grid = cached_read(file, mesh_block, cache)
     end
     units = get_units(mesh_block.units)
 

@@ -1,6 +1,6 @@
-function read_file(file, p, field_cache, particle_cache)
+function read_file(file, p, cache, particle_cache)
     h, blocks = open(file_summary, file)
-    SDFFile(file, h, blocks, p, field_cache, particle_cache)
+    SDFFile(file, h, blocks, p, cache, particle_cache)
 end
 
 function Base.read(sdf::SDFFile, entry::Symbol)
