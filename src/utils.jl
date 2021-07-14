@@ -30,9 +30,9 @@ function domain_volume(sdf)
 
     Δx = domain_length(sdf, :x)
 
-    if ndims == 1
+    if nd == 1
         Δx
-    elseif ndims == 2
+    elseif nd == 2
         Δy = domain_length(sdf, :y)
         Δx * Δy
     else
