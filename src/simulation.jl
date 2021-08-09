@@ -7,12 +7,11 @@ struct EPOCHSimulation{P,B,C,PC}
 end
 
 function read_simulation(dir; field_cache_size=6, particle_cache_size=2, kwargs...)
-    file_list = joinpath(dir, "normal.visit")
-    if isfile(file_list)
-        paths = readlines(file_list)
-    else
-        @debug "No normal.visit found in $dir."
-        paths = filter(f->endswith(f, ".sdf"), readdir(dir))
+    paths = filter(f->endswith(f, ".sdf"), readdir(dir))
+    !issorted(paths) && sort!(paths)
+    if isempty(paths)
+        error("no .sdf files found in directory $dir")
+        return nothing
     end
 
     input_deck = joinpath(dir, "input.deck")
