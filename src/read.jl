@@ -14,7 +14,7 @@ function read_selected(file, blocks, name, skip_grid)
     data = read(file, data_block)
 
     if get_mesh_id(data_block) in skip_grid
-        (data=data, block=data_block)
+        (data = data, block = data_block)
     else
         store_entry(data_block, data, file, blocks)
     end
@@ -30,9 +30,9 @@ get_cache(::Grid, sdf) = sdf.particle_cache[]
 
 get_mesh_id(block::AbstractBlockHeader) = hasproperty(block, :mesh_id) ? Symbol(block.mesh_id) : nothing
 
-store_entry(data_block::T, data, file, blocks) where T = store_entry(data_kind(T), data_block, data, file, blocks)
+store_entry(data_block::T, data, file, blocks) where {T} = store_entry(data_kind(T), data_block, data, file, blocks)
 
-store_entry(::Grid, ::T, data, file, blocks) where T = store_entry(discretization_type(T), data)
+store_entry(::Grid, ::T, data, file, blocks) where {T} = store_entry(discretization_type(T), data)
 
 function store_entry(::Data, data_block, data, file, blocks)
     mesh_block = getindex(blocks, get_mesh_id(data_block))
@@ -42,7 +42,7 @@ function store_entry(::Data, data_block, data, file, blocks)
     store_entry(data_block, data, grid)
 end
 
-store_entry(data_block::T, data, grid) where T = store_entry(discretization_type(T), data_block, data, grid)
+store_entry(data_block::T, data, grid) where {T} = store_entry(discretization_type(T), data_block, data, grid)
 store_entry(::Variable, data::NTuple) = VectorVariable(data)
 
 function store_entry(::StaggeredField, data_block, data, grid)
@@ -55,7 +55,7 @@ function store_entry(::Variable, data_block, data, grid)
     ScalarVariable(data, grid, name)
 end
 
-make_grid(mesh_block::T, data_block, file) where T =
+make_grid(mesh_block::T, data_block, file) where {T} =
     make_grid(discretization_type(T), mesh_block, data_block, file)
 
 function make_grid(::StaggeredField, mesh_block, data_block, file)
@@ -65,7 +65,7 @@ function make_grid(::StaggeredField, mesh_block, data_block, file)
     dims = mesh_block.dims
 
     original_grid = map(eachindex(dims)) do i
-        range(minval[i], maxval[i], length=dims[i])
+        range(minval[i], maxval[i], length = dims[i])
     end
     @debug "Creating grid from $original_grid"
 
@@ -87,7 +87,7 @@ function make_grid(::StaggeredField, mesh_block, data_block, file)
     return SparseAxisGrid(grid; names)
 end
 
-function make_grid(::Variable, mesh_block, data_block, file; cache=nothing)
+function make_grid(::Variable, mesh_block, data_block, file; cache = nothing)
     if isnothing(cache)
         @debug "No cache"
         grid = read(file, mesh_block)
@@ -103,25 +103,26 @@ function make_grid(::Variable, mesh_block, data_block, file; cache=nothing)
     names = Symbol.(lowercase.(labels(mesh_block)))
     @debug "Axis label names: $names"
 
-    ParticlePositions(grid; names, mins=MVector(minvals), maxs=MVector(maxvals))
+    ParticlePositions(grid; names, mins = MVector(minvals), maxs = MVector(maxvals))
 end
 
-apply_stagger(grid, ::Val{CellCentre}) = (midpoints.(grid)...,)
+apply_stagger(grid, ::Val{CellCentre}) = (midpoints(grid[1]), midpoints(grid[2]), midpoints(grid[3]))
 
 function apply_stagger(grid, ::Val{FaceX})
     n = length(grid)
     if n == 1
-        grid
-    # TODO: 2D
+        (grid[1],)
+    elseif n == 2
+        (grid[1], midpoints(grid[2]))
     else
-        (grid[1], midpoints.(grid[2:end])...)
+        (grid[1], midpoints(grid[2]), midpoints(grid[3]))
     end
 end
 
 function apply_stagger(grid, ::Val{FaceY})
     n = length(grid)
     if n == 1
-        grid
+        (midpoints(grid[1]),)
     elseif n == 2
         (midpoints(grid[1]), grid[2])
     else
@@ -132,25 +133,31 @@ end
 function apply_stagger(grid, ::Val{FaceZ})
     n = length(grid)
     if n == 1
-        grid
+        (midpoints(grid[1]),)
+    elseif n == 2
+        (midpoints(grid[1]), midpoints(grid[2]))
     else
-        (midpoints.(grid[1:2])..., grid[3])
+        (midpoints(grid[1]), midpoints(grid[2]), grid[3])
     end
 end
 
 function apply_stagger(grid, ::Val{EdgeX})
     n = length(grid)
     if n == 1
-        grid
+        (midpoints(grid[1]),)
+    elseif n == 2
+        (midpoints(grid[1]), grid[2])
     else
-        (midpoints(grid[1]), grid[2:end]...)
+        (midpoints(grid[1]), grid[2], grid[3])
     end
 end
 
 function apply_stagger(grid, ::Val{EdgeY})
     n = length(grid)
     if n == 1
-        grid
+        (grid[1],)
+    elseif n == 2
+        (grid[1], midpoints(grid[2]))
     else
         (grid[1], midpoints(grid[2]), grid[3])
     end
@@ -159,10 +166,12 @@ end
 function apply_stagger(grid, ::Val{EdgeZ})
     n = length(grid)
     if n == 1
-        grid
+        (grid[1],)
+    elseif n == 2
+        (grid[1], grid[2])
     else
-        (grid[1:2]..., midpoints(grid[3]))
+        (grid[1], grid[2], midpoints(grid[3]))
     end
 end
 
-apply_stagger(grid, ::Val{Vertex}) = (grid...,)
+apply_stagger(grid, ::Val{Vertex}) = (grid[1], grid[2], grid[3])
