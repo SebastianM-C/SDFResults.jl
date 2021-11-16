@@ -29,7 +29,7 @@ using RecursiveArrayTools: recursive_bottom_eltype
 
     vars = (:grid, Symbol("py/electron"), Symbol("pz/electron"))
     @task all(vars .∈ keys(file))
-    (x,y,z), py, pz = read(file, vars...)
+    (x, y, z), py, pz = read(file, vars...)
     @test all(unit.(x) .== u"m")
     @test all(unit.(py) .== u"kg*m/s")
 
@@ -63,7 +63,7 @@ using RecursiveArrayTools: recursive_bottom_eltype
 
         show(io, MIME"text/plain"(), sim)
         @test startswith(String(take!(io)), "Epoch3d simulation with 1 files from " *
-        "10.1 fs to 10.1 fs.")
+                                            "10.1 fs to 10.1 fs.")
 
         show(io, MIME"text/plain"(), sim[1])
         @test String(take!(io)) == "SDFFile with 44 entries at t = 10.1 fs"
