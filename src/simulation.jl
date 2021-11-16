@@ -44,7 +44,7 @@ Base.lastindex(sim::EPOCHSimulation) = lastindex(sim.files)
 
 # Iteration
 Base.iterate(sim::EPOCHSimulation, state...) = iterate(sim.files, state...)
-Base.iterate(r_sim::Iterators.Reverse{EPOCHSimulation}, state...) = iterate(Iterators.reverse(r_sim.itr.files), state...)
+Base.iterate(r_sim::Iterators.Reverse{<:EPOCHSimulation}, state...) = iterate(Iterators.reverse(r_sim.itr.files), state...)
 Base.eltype(::Type{EPOCHSimulation}) = SDFFile
 Base.length(sim::EPOCHSimulation) = length(sim.files)
 Base.size(sim::EPOCHSimulation, args...) = size(sim.files, args...)
