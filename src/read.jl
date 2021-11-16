@@ -106,7 +106,16 @@ function make_grid(::Variable, mesh_block, data_block, file; cache = nothing)
     ParticlePositions(grid; names, mins = MVector(minvals), maxs = MVector(maxvals))
 end
 
-apply_stagger(grid, ::Val{CellCentre}) = (midpoints(grid[1]), midpoints(grid[2]), midpoints(grid[3]))
+function apply_stagger(grid, ::Val{CellCentre})
+    n = length(grid)
+    if n == 1
+        (midpoints(grid[1]),)
+    elseif n == 2
+        (midpoints(grid[1]), midpoints(grid[2]))
+    else
+        (midpoints(grid[1]), midpoints(grid[2]), midpoints(grid[3]))
+    end
+end
 
 function apply_stagger(grid, ::Val{FaceX})
     n = length(grid)
@@ -174,4 +183,13 @@ function apply_stagger(grid, ::Val{EdgeZ})
     end
 end
 
-apply_stagger(grid, ::Val{Vertex}) = (grid[1], grid[2], grid[3])
+function apply_stagger(grid, ::Val{Vertex})
+    n = length(grid)
+    if n == 1
+        (grid[1],)
+    elseif n == 2
+        (grid[1], grid[2])
+    else
+        (grid[1], grid[2],grid[3])
+    end
+end
