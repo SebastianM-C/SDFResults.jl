@@ -13,6 +13,7 @@ using RecursiveArrayTools: recursive_bottom_eltype
     @test file isa SDFFile
     @test size(sim) == (1,)
     @test length(sim) == 1
+    @test first(Iterators.reverse(sim)) === last(sim)
 
     Ex, Ey = file[:ex, :ey]
     Ez = file[:ez]
