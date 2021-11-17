@@ -43,7 +43,7 @@ function store_entry(::Data, data_block, data, file, blocks)
 end
 
 store_entry(data_block::T, data, grid) where {T} = store_entry(discretization_type(T), data_block, data, grid)
-store_entry(::Variable, data::NTuple) = VectorVariable(data)
+store_entry(::Variable, data::NTuple) = ParticlePositions(data)
 
 function store_entry(::StaggeredField, data_block, data, grid)
     name = nameof(data_block)
