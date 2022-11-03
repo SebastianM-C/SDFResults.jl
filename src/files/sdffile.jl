@@ -1,20 +1,23 @@
-struct SDFFile{P,B,C,PC}
+struct SDFFile{B}
     name::String
     header::Header
     blocks::B
-    param::Ref{P}
-    cache::Ref{C}
-    particle_cache::Ref{PC}
+end
+
+function SDFFile(filename)
+    h, blocks = open(file_summary, filename)
+    SDFFile(filename, h, blocks)
 end
 
 include("read.jl")
+include("grids.jl")
+include("stagger.jl")
 include("utils.jl")
 include("angular_momentum.jl")
 
 Base.keys(sdf::SDFFile) = keys(sdf.blocks)
-Base.getindex(sdf::SDFFile, idx::Vararg{AbstractString, N}) where N = sdf[Symbol.(idx)...]
-Base.haskey(sim::SDFFile, key) = haskey(sim.param[], key)
-Base.haskey(sim::SDFFile, block, key) = haskey(sim.param[][block], key)
+# Base.haskey(sim::SDFFile, key) = haskey(sim.param[], key)
+# Base.haskey(sim::SDFFile, block, key) = haskey(sim.param[][block], key)
 
 # show
 function Base.show(io::IO, ::MIME"text/plain", sdf::SDFFile)
