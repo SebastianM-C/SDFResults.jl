@@ -25,3 +25,10 @@ function get_data_description(file)
 
     return N, T
 end
+
+get_mesh_id(block::AbstractBlockHeader) = hasproperty(block, :mesh_id) ? block.mesh_id : nothing
+
+function get_mesh_id(file, idx)
+    block = getindex(file.blocks, idx)
+    get_mesh_id(block)
+end
