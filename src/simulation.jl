@@ -1,9 +1,6 @@
-struct EPOCHSimulation{P,B,C,PC}
+struct EPOCHSimulation{F}
     dir::String
-    files::Vector{SDFFile{P,B,C,PC}}
-    param::P
-    cache::C
-    particle_cache::PC
+    files::F
 end
 
 function read_simulation(dir; field_cache_size=6, particle_cache_size=2, kwargs...)
@@ -14,27 +11,27 @@ function read_simulation(dir; field_cache_size=6, particle_cache_size=2, kwargs.
         return nothing
     end
 
-    input_deck = joinpath(dir, "input.deck")
-    if isfile(input_deck)
-        p = parse_input(input_deck)
-    else
-        @warn "No input.deck found in $dir."
-        p = missing
-    end
+    # input_deck = joinpath(dir, "input.deck")
+    # if isfile(input_deck)
+    #     p = parse_input(input_deck)
+    # else
+    #     @warn "No input.deck found in $dir."
+    #     p = missing
+    # end
 
     # We assume that the particle_cache has the same dimensionality throughout
     # all the simulation, so we ca use the first file to get the dimensionality
     # and element type
 
-    N, T = get_data_description(joinpath(dir, first(paths)))
-    @debug "First file gave N = $N and T = $T"
+    # N, T = get_data_description(joinpath(dir, first(paths)))
+    # @debug "First file gave N = $N and T = $T"
 
-    field_cache = LRU{Tuple{String,AbstractBlockHeader},AbstractArray}(maxsize=field_cache_size, kwargs...)
-    particle_cache =  LRU{Tuple{String,AbstractBlockHeader},NTuple{N,Vector{T}}}(maxsize=particle_cache_size)
+    # field_cache = LRU{Tuple{String,AbstractBlockHeader},AbstractArray}(maxsize=field_cache_size, kwargs...)
+    # particle_cache =  LRU{Tuple{String,AbstractBlockHeader},NTuple{N,Vector{T}}}(maxsize=particle_cache_size)
 
-    files = read_file.(joinpath.((dir,), paths), (Ref(p),), (Ref(field_cache),), (Ref(particle_cache),))
+    files = SDFFile.(joinpath.((dir,), paths))
 
-    EPOCHSimulation(dir, files, p, field_cache, particle_cache)
+    EPOCHSimulation(dir, files)
 end
 
 # Indexing
@@ -62,10 +59,10 @@ function Base.show(io::IO, ::MIME"text/plain", sim::EPOCHSimulation)
     n = length(sim)
     t₀ = si_round(get_time(first_file))
     t = si_round(get_time(last(sim)))
-    fc = Base.summarysize(sim.cache)
-    pc = Base.summarysize(sim.particle_cache)
-    c = Base.format_bytes(fc + pc)
-    description = "$code_name simulation with $n files from " * t₀ * " to " * t * ".\n" *
-    "Cache size: " * c
+    # fc = Base.summarysize(sim.cache)
+    # pc = Base.summarysize(sim.particle_cache)
+    # c = Base.format_bytes(fc + pc)
+    description = "$code_name simulation with $n files from " * t₀ * " to " * t * ".\n"
+    # "Cache size: " * c
     print(io, description)
 end

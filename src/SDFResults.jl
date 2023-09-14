@@ -19,10 +19,10 @@ using StaticArrays: MVector
 using LRUCache
 using Printf
 
+include("traits.jl")
 include("files/sdffile.jl")
 include("simulation.jl")
-include("traits.jl")
-include("read.jl")
+# include("read.jl")
 include("utils.jl")
 include("units.jl")
 

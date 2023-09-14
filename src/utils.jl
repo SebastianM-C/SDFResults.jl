@@ -15,6 +15,8 @@ end
 
 pretty_summarysize(x) = Base.format_bytes(Base.summarysize(x))
 
+block_size(block) = prod(Int.(size(block))) * sizeof(eltype(block))
+
 get_parameter(sim::EPOCHSimulation, p::Symbol) = getindex(sim.param, p)
 get_parameter(sim::EPOCHSimulation, p::Symbol, c::Symbol) = getindex(get_parameter(sim, p), c)
 
