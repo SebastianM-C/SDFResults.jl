@@ -31,7 +31,7 @@ function read_block(f::IO, block::Union{PlainVariableBlockHeader,PointVariableBl
 end
 
 function read_block(f::IO, block::PointMeshBlockHeader, units=true)
-    raw_data = map(size(block)) do i
+    raw_data = ntuple(ndims(block)) do i
         mmap_block(f, block, i)
     end
     if units

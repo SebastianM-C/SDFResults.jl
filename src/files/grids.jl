@@ -48,7 +48,6 @@ end
 function make_grid(::Variable, mesh_block, data_block, file, units)
     grid = read_block(file, mesh_block)
 
-    units = get_units(mesh_block.units)
     if units
         u = get_units(mesh_block.units)
     else
